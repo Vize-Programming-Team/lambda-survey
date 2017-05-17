@@ -26,6 +26,7 @@ table_users = dynamodb.Table('User_Data')
 def lambda_handler(event, context):
     response = MessagingResponse()
     print('Event:', event)
+    identify_key = 'Survey_Code'
 
     message = str(event['Body'])
     from_number = event['From']
@@ -34,18 +35,12 @@ def lambda_handler(event, context):
     from_number = urllib.parse.unquote(from_number)
 
     # Checks for initial response from survey deployment. If responded with 'Yes' the survey will be sent
-    if (table_users.get_item(Key={'Number': from_number})['Item']['Responded'] == 0) and (message.lower() == 'yes'):
-        table_users.update_item(Key={'Number': from_number, }, UpdateExpression="set Responded = :r",
+    if (table_users.get_item(Key={identify_key: from_number})['Item']['Responded'] == 0) and (message.lower() == 'yes'):
+        table_users.update_item(Key={identify_key: from_number, }, UpdateExpression="set Responded = :r",
                                 ExpressionAttributeValues={':r': 1}, ReturnValues="UPDATED_NEW")
 
-    # Allows for deletion of users for testing purposes
-    if message.lower() == 'clear' or message.lower() == 'delete':
-        response.message('Your data has been cleared')
-        table_users.delete_item(Key={'Number': from_number})
-        return str(response)
-
     # Check the database for an existing user
-    dynamo_response = table_users.scan(KeyConditionExpression=Key('Number').eq(from_number))
+    dynamo_response = table_users.query(KeyConditionExpression=Key('Survey_Code').eq(from_number))
 
     if dynamo_response['Count'] == 0:
         response.message("Error. We don't recognize your number")
@@ -70,7 +65,7 @@ def lambda_handler(event, context):
         save_response(from_number, message)
 
     # If the user wants to take the survey, the next question is received
-    if table_users.get_item(Key={'Number': from_number})['Item']['Responded']:
+    if table_users.get_item(Key={identify_key: from_number})['Item']['Responded']:
         question = get_next_question(from_number)
         response.message(question)
 
