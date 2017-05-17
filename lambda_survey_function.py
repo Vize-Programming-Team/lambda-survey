@@ -34,11 +34,6 @@ def lambda_handler(event, context):
 
     from_number = urllib.parse.unquote(from_number)
 
-    # Checks for initial response from survey deployment. If responded with 'Yes' the survey will be sent
-    if (table_users.get_item(Key={identify_key: from_number})['Item']['Responded'] == 0) and (message.lower() == 'yes'):
-        table_users.update_item(Key={identify_key: from_number, }, UpdateExpression="set Responded = :r",
-                                ExpressionAttributeValues={':r': 1}, ReturnValues="UPDATED_NEW")
-
     # Check the database for an existing user
     dynamo_response = table_users.query(KeyConditionExpression=Key('Survey_Code').eq(from_number))
 
@@ -47,6 +42,17 @@ def lambda_handler(event, context):
         save_message = False
     else:
         save_message = True
+
+    # Checks for initial response from survey deployment. If responded with 'Yes' the survey will be sent
+    has_responded = table_users.get_item(Key={identify_key: from_number})['Item']['Responded']
+    if not has_responded and (message.lower() == 'yes'):
+        table_users.update_item(Key={identify_key: from_number, }, UpdateExpression="set Responded = :r",
+                                ExpressionAttributeValues={':r': 1}, ReturnValues="UPDATED_NEW")
+        save_message = False
+    elif not has_responded and message.lower() == 'no':
+        return str(response.message("Thank you. If you change your mind, text 'yes' back."))
+    elif not has_responded:
+        save_message = False
 
     # Stores the response in the database
     if save_message:
