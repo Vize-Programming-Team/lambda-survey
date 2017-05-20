@@ -5,11 +5,9 @@ table = dynamodb.Table('User_Data')
 
 identify_key = 'Survey_Code'
 
-def get_next_question(number):
-    questions = table.get_item(Key={identify_key: 'Questions', })
-    questions_item = questions['Item']
-    question_list = questions_item['Questions']
+question_list = table.get_item(Key={identify_key: 'Questions', })['Item']['Questions']
 
+def get_next_question(number):
     user = table.get_item(Key={identify_key: number, })
     user_item = user['Item']
     user_question_list = user_item['Questions']
@@ -25,10 +23,16 @@ def get_next_question(number):
     else:
         return question_list[len(user_question_list)]
 
+def get_question(question_number):
+    return question_list[question_number]
+
+def get_previous_question(number):
+    user_question_list = table.get_item(Key={identify_key: number})['Item']['Questions']
+    if len(user_question_list)-1 >= 0:
+        return question_list[len(user_question_list)-1]
+    else:
+        return question_list[0]
+
 # Returns the number of questions in the survey
 def total_questions():
-    questions = table.get_item(Key={identify_key: 'Questions', })
-    questions_item = questions['Item']
-    question_list = questions_item['Questions']
-
     return len(question_list)
