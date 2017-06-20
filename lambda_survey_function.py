@@ -90,7 +90,8 @@ def lambda_handler(event, context):
             question = get_previous_question(from_number)
             table_users.update_item(Key={identify_key: from_number}, UpdateExpression="set Previous = :r",
                                     ExpressionAttributeValues={':r': True}, ReturnValues='UPDATED_NEW')
-        question = get_next_question(from_number)
+        else:
+            question = get_next_question(from_number)
         response.message(question)
 
     return str(response)
