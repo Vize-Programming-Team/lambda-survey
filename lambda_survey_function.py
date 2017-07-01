@@ -35,7 +35,7 @@ def lambda_handler(event, context):
     from_number = urllib.parse.unquote(from_number)
 
     # Check the database for an existing user
-    dynamo_response = table_users.query(KeyConditionExpression=Key('Survey_Code').eq(from_number))
+    dynamo_response = table_users.query(KeyConditionExpression=Key('ID').eq(from_number))
 
     if dynamo_response['Count'] == 0:
         response.message("Error: We don't recognize your number")
