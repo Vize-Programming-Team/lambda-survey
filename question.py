@@ -1,7 +1,7 @@
 import boto3
 
-dynamodb = boto3.resource('dynamodb','us-west-2')
-table = dynamodb.Table('User_Data')
+dynamodb = boto3.resource('dynamodb','us-east-1')
+table = dynamodb.Table('user-data')
 
 identify_key = 'Survey_Code'
 
