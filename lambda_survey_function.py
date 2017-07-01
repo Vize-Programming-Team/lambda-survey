@@ -20,8 +20,8 @@ account_sid = os.environ['ACCOUNT_SID']
 auth_token = os.environ['AUTH_TOKEN']
 
 # Add DynamoDB
-dynamodb = boto3.resource('dynamodb','us-west-2')
-table_users = dynamodb.Table('User_Data')
+dynamodb = boto3.resource('dynamodb','us-east-1')
+table_users = dynamodb.Table('user-data')
 
 def lambda_handler(event, context):
     response = MessagingResponse()
@@ -68,9 +68,9 @@ def lambda_handler(event, context):
                 pic_url = urllib.parse.unquote(event['MediaUrl0'])
                 twilio_pic = urllib.request.Request(pic_url, headers={'User-Agent': "Magic Browser"})
                 image = urllib.request.urlopen(twilio_pic)
-                image_bucket = 'image-monster'
+                image_bucket = 'vize-image-storage'
                 key = "ingest-images/" + str(from_number.replace('+', '')) + "/" + str(random.getrandbits(50)) + ".png"
-                store_url = "https://s3-us-west-2.amazonaws.com/{0}/{1}".format(image_bucket, str(key))
+                store_url = "https://s3-us-east-1.amazonaws.com/{0}/{1}".format(image_bucket, str(key))
                 meta_data = {'FromNumber': from_number, 'url': store_url}
                 s3.Bucket(image_bucket).put_object(Key=key, Body=image.read(), ACL='public-read', ContentType='image/png',
                                                    Metadata=meta_data)
