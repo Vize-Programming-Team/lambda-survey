@@ -26,7 +26,7 @@ table_users = dynamodb.Table('user-data')
 def lambda_handler(event, context):
     response = MessagingResponse()
     print('Event:', event)
-    identify_key = 'Survey_Code'
+    identify_key = 'ID'
 
     message = urllib.parse.unquote(event['Body'])
     from_number = event['From']
