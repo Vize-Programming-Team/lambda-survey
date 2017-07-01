@@ -5,7 +5,7 @@ from question import total_questions
 dynamodb = boto3.resource('dynamodb','us-east-1')
 table = dynamodb.Table('user-data')
 
-identify_key = 'Survey_Code'
+identify_key = 'ID'
 
 def save_response(number,body):
     user_response_list = table.get_item(Key={identify_key: number, })['Item']['Questions']

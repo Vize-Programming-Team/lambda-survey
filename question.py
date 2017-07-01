@@ -3,7 +3,7 @@ import boto3
 dynamodb = boto3.resource('dynamodb','us-east-1')
 table = dynamodb.Table('user-data')
 
-identify_key = 'Survey_Code'
+identify_key = 'ID'
 
 question_list = table.get_item(Key={identify_key: 'Questions', })['Item']['Questions']
 
